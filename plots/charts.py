@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from io import BytesIO
 import pandas as pd
+import textwrap
+import numpy as np
 
 def crear_piechart(df: pd.DataFrame, columna: str, titulo: str = None) -> BytesIO:
     # Contar frecuencia de valores en la columna
@@ -42,39 +44,47 @@ def crear_piechart(df: pd.DataFrame, columna: str, titulo: str = None) -> BytesI
     buf.seek(0)
     return buf
 
-# def crear_barchart(df: pd.DataFrame, columnas: list, titulo: str = None) -> BytesIO:
-#     # Definir colores por defecto si no se pasan
-#     if colores is None:
-#         colores = plt.cm.Paired.colors  # paleta de Matplotlib
+def crear_barchart(df: pd.DataFrame, columna: str, titulo: str = None) -> BytesIO:
+    # Contar frecuencia de valores
+    counts = df[columna].value_counts()
 
-#     # Preparar figura
-#     fig, ax = plt.subplots(figsize=(8, 6))
+    # Preparar figura
+    fig, ax = plt.subplots(figsize=(18, 4))
 
-#     # Posiciones de las barras
-#     n_cols = len(columnas)
-#     indices = range(len(df))  # si quieres índices del df, pero para categóricas conviene agrupar
+    # Ocultar ejes innecesarios
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.yaxis.set_visible(False)
 
-#     # Agrupar y graficar cada columna
-#     for i, col in enumerate(columnas):
-#         counts = df[col].value_counts()
-#         ax.bar(
-#             counts.index + f" ({col})",  # etiquetas con columna
-#             counts.values,
-#             color=colores[i % len(colores)],
-#             label=col
-#         )
+    labels = [ '\n'.join(label.split()) for label in counts.index ]
+    x_pos = np.arange(len(counts)) * 2
+    bars = ax.bar(x_pos, counts.values, color="#2AA5F9", width=0.4)
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(labels)
 
-#     # Estilo del gráfico
-#     ax.set_ylabel("Cantidad")
-#     if titulo:
-#         ax.set_title(titulo)
-#     ax.legend()
-#     plt.xticks(rotation=45, ha="right")
+    # Colocar porcentaje encima de cada barra
+    total = counts.values.sum()
+    for bar, value in zip(bars, counts.values):
+        pct = value / total * 100
+        ax.text(
+            bar.get_x() + bar.get_width()/2,
+            bar.get_height() + max(counts.values)*0.01,
+            f"{pct:.1f}%",
+            ha='center',
+            fontsize=14,
+            color='black'
+        )
 
-#     # Guardar en buffer
-#     buf = BytesIO()
-#     plt.tight_layout()
-#     plt.savefig(buf, format="PNG")
-#     plt.close(fig)
-#     buf.seek(0)
-#     return buf
+    # Título
+    if titulo:
+        ax.set_title(titulo, fontsize=16)
+
+    # Guardar en buffer
+    buf = BytesIO()
+    plt.tight_layout()
+    plt.savefig(buf, format="PNG")
+    plt.close(fig)
+    buf.seek(0)
+    return buf
+

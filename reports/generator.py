@@ -1,5 +1,5 @@
 from plots.wordclouds import crear_wordcloud
-from plots.charts import crear_piechart
+from plots.charts import crear_piechart, crear_barchart
 from utils.pptx_utils import rellenar_template
 
 def generar_global_report(df, df_2022, template_path="reports/templates/template-global.pptx", output_path="reports/output/global_final.pptx"):
@@ -13,8 +13,8 @@ def generar_global_report(df, df_2022, template_path="reports/templates/template
     pc_gender = crear_piechart(df, columna="GENERO", titulo="Sexo")
     pc_student_day = crear_piechart(df, columna="JORNADA", titulo="Jornada")
     pc_student_type = crear_piechart(df, columna="TIPO_ALUMNO", titulo="Tipo de Alumno")
-    # bc_sedes = crear_barchart(df, columnas=["SEDE"], titulo="Distribución por Sede")
-    # bc_escuelas = crear_barchart(df, columnas=["ESCUELA"], titulo="Distribución por Escuela")
+    bc_sedes = crear_barchart(df, columna="SEDE", titulo="Sede")
+    bc_escuelas = crear_barchart(df, columna="ESCUELA", titulo="Escuela")
 
     placeholders = {
         "wordcloud_global": wc_global,
@@ -24,9 +24,8 @@ def generar_global_report(df, df_2022, template_path="reports/templates/template
         "gender_pie_chart": pc_gender,
         "student_day_pie_chart": pc_student_day,
         "student_type_pie_chart": pc_student_type,
-        # "sedes_bar_chart": bc_sedes,
-        # "escuelas_bar_chart": bc_escuelas,
+        "sedes_bar_chart": bc_sedes,
+        "escuelas_bar_chart": bc_escuelas,
     }
 
-    # Rellenar template
     rellenar_template(template_path, output_path, placeholders)

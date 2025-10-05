@@ -13,12 +13,12 @@ def crear_wordcloud(df: pd.DataFrame, columnas: list, genero: str = None,
         df_filtered = df_filtered[df_filtered["GENERO"] == genero]
 
     # Combinar todas las palabras
-    palabras = []
+    frases = []
     for col in columnas:
         serie = df_filtered[col].dropna().astype(str)
         for texto in serie:
-            palabras.extend(texto.split())
-    texto_completo = " ".join(palabras)
+            frases.append(texto.strip().replace(" ","_"))
+    texto_completo = " ".join(frases)
 
     # Cargar máscara en escala de grises
     mask_img = Image.open(mask_path).convert("L")  # L = grayscale
